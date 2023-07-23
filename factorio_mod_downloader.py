@@ -35,6 +35,7 @@ def main(json_file: Path, all: bool = False) -> None:
     out_folder.mkdir(exist_ok=True)
 
     # Download the mods
+    failed_list = {mod["name"] for mod in mod_list}
     print(f"Downloading {len(mod_list)} mods")
     bar = alive_progress.alive_it(mod_list, finalize=lambda bar: bar.text('Done'))
     for mod in bar:
@@ -61,7 +62,12 @@ def main(json_file: Path, all: bool = False) -> None:
             continue
         with open(out_file, "wb") as f:
             f.write(status.content)
+        failed_list.remove(mod["name"])
         print(f'Downloaded {latest_mod_version["file_name"]}')
+    if len(failed_list) != 0:
+        print("\nThe following mods failed to be downloaded:")
+        for mod in failed_list:
+            print(f"\t{mod}")
 
 
 if __name__ == "__main__":
